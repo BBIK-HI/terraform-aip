@@ -16,7 +16,7 @@ on:
   pull_request:
       branches: [main]
       paths:
-        - 'environments/**' # Trigger on any change inside the terraform folder
+        - './environments/**' # Trigger on any change inside the terraform folder
 
 jobs:
 
@@ -34,17 +34,16 @@ jobs:
               uses: tj-actions/changed-files@v44
               with:
                 files: |
-                  terraform/**/*.tf
+                  ./environments/**
                 json: true
-                # output_format: 'json' # Use json output for matrix
 
   terraform_plan:
     needs: find_working_dirs
     runs-on: ubuntu-latest
     strategy:
-          fail-fast: false
-          matrix:
-            working_dir: ${{ fromJson(needs.find_working_dirs.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+        working_dir: ${{ fromJson(needs.find_working_dirs.outputs.matrix) }}
 
     name: 'Plan (${{ matrix.working_dir }})'
 
@@ -79,13 +78,5 @@ jobs:
       run: terraform plan -no-color -input=false
       working-directory: ${{ matrix.working_dir }}
       continue-on-error: true
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-
-
-
-    - name: Terraform Apply
-      run: terraform -chdir=$ENV_DIR apply -auto-approve
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
