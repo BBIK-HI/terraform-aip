@@ -16,7 +16,7 @@ on:
   pull_request:
       branches: [main]
       paths:
-        - 'environments/**' # Trigger on any change inside the terraform folder
+        - './environments/**' # Trigger on any change inside the terraform folder
 
 jobs:
 
@@ -34,9 +34,9 @@ jobs:
               uses: tj-actions/changed-files@v44
               with:
                 files: |
-                  environments/**/*.tf
+                  ./environments/**
                 json: true
-                # output_format: 'json' # Use json output for matrix
+                output_format: 'json' # Use json output for matrix
 
   terraform_plan:
     needs: find_working_dirs
