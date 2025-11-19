@@ -18,7 +18,7 @@ provider "google" {
 }
 
 module "project_network" {
-  source              = "modules\network"
+  source              = "./modules/network"
   project_id          = var.project_id
   network_name        = "vpc-sandbox"
   subnet_name         = "snet-prd-gke-portal"
