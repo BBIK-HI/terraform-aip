@@ -1,22 +1,3 @@
-terraform {
-  required_providers {
-    google = {
-      source = "hashicorp/google"
-      version = "~> 5.0"
-    }
-
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-      version = "~> 2.23"
-    }
-  }
-}
-
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
 module "network" {
   source              = "../../../modules/network"
   project_id          = var.project_id
@@ -24,4 +5,13 @@ module "network" {
   subnet_name         = var.subnet_name
   subnet_cidr_range   = var.subnet_cidr_range
   region              = var.region
+}
+
+module "gke" {
+  source = "../../../modules/gke"
+  project_id = var.project_id
+  cluster_name = var.cluster_name
+  region = var.region
+  network = var.network_name
+  subnetwork = var.subnet_name
 }

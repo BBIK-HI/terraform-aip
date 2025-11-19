@@ -2,11 +2,12 @@ variable "project_id" {
   type = string
 }
 
-variable "cluster_name" {
+variable "region" {
   type = string
 }
 
-variable "location" {
+
+variable "cluster_name" {
   type = string
 }
 

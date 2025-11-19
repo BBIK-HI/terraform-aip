@@ -1,41 +1,57 @@
 name: 'Terraform'
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Project to deploy"
-        required: true
-        type: choice
-        options:
-          - aip-sandbox-application
-          - aip-sandbox-data
-          - aip-sandbox-ai
-          - aip-sandbox-external
-  push:
-    branches: [ "main" ]
-  pull_request:
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       description: "Project to deploy"
+  #       required: true
+  #       type: choice
+  #       options:
+  #         - aip-sandbox-application
+  #         - aip-sandbox-data
+  #         - aip-sandbox-ai
+  #         - aip-sandbox-external
 
-permissions:
-  contents: read
+  pull_request:
+      branches: [main]
+      paths:
+        - 'environments/**' # Trigger on any change inside the terraform folder
 
 jobs:
-  terraform:
-    name: 'Terraform'
-    runs-on: ubuntu-latest
-    environment: production
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+  find_working_dirs:
+      runs-on: ubuntu-latest
+      outputs:
+        matrix: ${{ steps.files.outputs.directories_as_json }}
+      steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+            
+            # Use an action to find all unique directories containing .tf files that have changed
+            - name: Get Changed Terraform Directories
+              id: files
+              uses: tj-actions/changed-files@v44
+              with:
+                files: |
+                  terraform/**/*.tf
+                json: true
+                # output_format: 'json' # Use json output for matrix
+
+  terraform_plan:
+    needs: find_working_dirs
+    runs-on: ubuntu-latest
+    strategy:
+          fail-fast: false
+          matrix:
+            working_dir: ${{ fromJson(needs.find_working_dirs.outputs.matrix) }}
+
+    name: 'Plan (${{ matrix.working_dir }})'
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
@@ -48,21 +64,26 @@ jobs:
         zone="${{ vars.ZONE }}"
         EOF
         
-    - name: Set project folder
-      id: set-env
-      run: echo "ENV_DIR=./environments/sandbox/${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+    # - name: Set project folder
+    #   id: set-env
+    #   run: echo "ENV_DIR=./environments/sandbox/${{ github.event.inputs.environment }}" >> $GITHUB_ENV
       
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform -chdir=$ENV_DIR init
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }} 
-
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform -chdir=$ENV_DIR plan -input=false
+      run: terraform init
+      working-directory: ${{ matrix.working_dir }}
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -input=false
+      working-directory: ${{ matrix.working_dir }}
+      continue-on-error: true
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+
+
 
     - name: Terraform Apply
       run: terraform -chdir=$ENV_DIR apply -auto-approve

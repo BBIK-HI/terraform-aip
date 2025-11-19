@@ -27,3 +27,8 @@ variable "subnet_cidr_range" {
     type = string
     default = "10.250.0.0/24"
 }
+
+variable "cluster_name" {
+    type = string
+    default = "gke-aip-sandbox-app-se1"
+}
