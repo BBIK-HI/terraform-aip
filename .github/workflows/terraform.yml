@@ -36,15 +36,14 @@ jobs:
                 files: |
                   ./environments/**
                 json: true
-                output_format: 'json' # Use json output for matrix
 
   terraform_plan:
     needs: find_working_dirs
     runs-on: ubuntu-latest
     strategy:
-          fail-fast: false
-          matrix:
-            working_dir: ${{ fromJson(needs.find_working_dirs.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+        working_dir: ${{ fromJson(needs.find_working_dirs.outputs.matrix) }}
 
     name: 'Plan (${{ matrix.working_dir }})'
 
