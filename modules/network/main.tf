@@ -1,3 +1,22 @@
+terraform {
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+      version = "~> 5.0"
+    }
+
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+  }
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
 resource "google_compute_network" "vpc_network" {
   name                    = var.network_name
   auto_create_subnetworks = false
@@ -11,6 +30,5 @@ resource "google_compute_subnetwork" "subnet" {
   network       = google_compute_network.vpc_network.self_link
   project       = var.project_id
   
-  # Optional: Configure private access for resources without external IP
   private_ip_google_access = true
 }

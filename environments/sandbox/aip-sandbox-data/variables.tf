@@ -1,6 +1,6 @@
 variable "project_id" {
     type= string
-    default = "sandbox-application-478506"
+    default = "sandbox-data-478506"
 }
 
 variable "region" {
@@ -20,10 +20,10 @@ variable "network_name" {
 
 variable "subnet_name" {
     type = string
-    default = "snet-sandbox-gke-portal"
+    default = "snet-sandbox-data"
 }
 
 variable "subnet_cidr_range" {
     type = string
-    default = "10.250.0.0/24"
+    default = "10.250.1.0/24"
 }

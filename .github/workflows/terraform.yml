@@ -1,6 +1,17 @@
 name: 'Terraform'
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Project to deploy"
+        required: true
+        type: choice
+        options:
+          - aip-sandbox-application
+          - aip-sandbox-data
+          - aip-sandbox-ai
+          - aip-sandbox-external
   push:
     branches: [ "main" ]
   pull_request:
@@ -32,7 +43,7 @@ jobs:
       id: vars
       run: |-
         cat > pipeline.auto.tfvars <<EOF
-        region="${{ vars.GCP_REGION }}" 
+        region="${{ vars.GCP_REGION }}"
         project_id="${{ vars.GCP_PROJECT }}"
         zone="${{ vars.ZONE }}"
         EOF
@@ -42,15 +53,14 @@ jobs:
       run: terraform init
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }} 
-      working-directory: ./environments/sandbox/aip-sandbox-application
-
+      working-directory: ./environments/sandbox/${{ github.event.inputs.environment }}
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-      working-directory: ./environments/sandbox/aip-sandbox-application
+      working-directory: ./environments/sandbox/${{ github.event.inputs.environment }}
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
@@ -59,4 +69,4 @@ jobs:
       run: terraform apply -auto-approve -input=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-      working-directory: ./environments/sandbox/aip-sandbox-application
+      working-directory: ./environments/sandbox/${{ github.event.inputs.environment }}

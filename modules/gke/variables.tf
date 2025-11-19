@@ -1,20 +1,20 @@
 variable "project_id" {
-  type        = string
+  type = string
 }
 
 variable "cluster_name" {
-  type        = string
+  type = string
 }
 
 variable "location" {
-  type        = string
+  type = string
 }
 
 variable "network" {
-  type        = string
+  type = string
 }
 
 variable "subnetwork" {
-  type        = string
+  type = string
 }
 
