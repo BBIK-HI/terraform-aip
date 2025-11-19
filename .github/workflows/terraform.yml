@@ -34,7 +34,7 @@ jobs:
               uses: tj-actions/changed-files@v44
               with:
                 files: |
-                  terraform/**/*.tf
+                  environments/**/*.tf
                 json: true
                 # output_format: 'json' # Use json output for matrix
 
