@@ -16,7 +16,7 @@ on:
   pull_request:
       branches: [main]
       paths:
-        - './environments/**' # Trigger on any change inside the terraform folder
+        - 'environments/**' # Trigger on any change inside the terraform folder
 
 jobs:
 
@@ -34,7 +34,7 @@ jobs:
               uses: tj-actions/changed-files@v44
               with:
                 files: |
-                  ./environments/**
+                  environments/**
                 json: true
 
   terraform_plan:
